@@ -1,0 +1,58 @@
+[
+  {
+    "id": "1",
+    "name": "Classic Student Tote",
+    "price": 15000,
+    "category": "bags",
+    "status": "available",
+    "image": "https://images.unsplash.com/photo-1591561954557-26941169b49e?auto=format&fit=crop&q=80&w=600"
+  },
+  {
+    "id": "2",
+    "name": "Minimal Varsity Backpack",
+    "price": 25000,
+    "category": "bags",
+    "status": "available",
+    "image": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=600"
+  },
+  {
+    "id": "3",
+    "name": "Standard Ruled Notebooks (Pack of 5)",
+    "price": 3500,
+    "category": "materials",
+    "status": "sold",
+    "image": "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=600"
+  },
+  {
+    "id": "4",
+    "name": "Scientific Calculator FX-991EX",
+    "price": 18000,
+    "category": "materials",
+    "status": "available",
+    "image": "https://images.unsplash.com/photo-1587145820266-a5951ee6f620?auto=format&fit=crop&q=80&w=600"
+  },
+  {
+    "id": "5",
+    "name": "Premium Female Care Bundle",
+    "price": 9500,
+    "category": "female-care",
+    "status": "available",
+    "image": "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=600"
+  },
+  {
+    "id": "6",
+    "name": "Skincare Travel Kit",
+    "price": 12000,
+    "category": "female-care",
+    "status": "available",
+    "image": "https://images.unsplash.com/photo-1556228720-1c27bef92bc6?auto=format&fit=crop&q=80&w=600"
+  },
+  {
+    "id": "7",
+    "name": "Wireless ANC Earbuds",
+    "price": 14500,
+    "category": "electronics",
+    "status": "available",
+    "image": "https://images.unsplash.com/photo-1628191010210-a59de33e5941?auto=format&fit=crop&q=80&w=600"
+  }
+]
