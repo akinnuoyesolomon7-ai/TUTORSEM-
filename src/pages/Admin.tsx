@@ -74,7 +74,7 @@ export default function Admin() {
     } catch (err) {
       console.error(err);
       fetchProducts();
-      setError("Failed to delete product");
+      setError(err instanceof Error ? err.message : "Failed to delete product");
     }
   };
 
@@ -101,7 +101,7 @@ export default function Admin() {
     } catch (err) {
       console.error(err);
       fetchProducts();
-      setError("Failed to update status");
+      setError(err instanceof Error ? err.message : "Failed to update status");
     }
   };
 
@@ -140,8 +140,7 @@ export default function Admin() {
       setIsAdding(false);
     } catch (err) {
       console.error(err);
-      // Remove alert because it doesn't work in iframes
-      setError("Failed to add product");
+      setError(err instanceof Error ? err.message : "Failed to add product");
     } finally {
       setLoading(false);
     }

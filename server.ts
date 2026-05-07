@@ -4,6 +4,27 @@ import multer from "multer";
 import cors from "cors";
 import path from "path";
 import fs from "fs";
+import * as dotenv from "dotenv";
+import { createClient } from "@supabase/supabase-js";
+
+dotenv.config();
+
+// Initialize Supabase Client
+let supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+let supabase: any = null;
+
+if (supabaseUrl && supabaseKey) {
+  // If the user accidentally provided the REST URL instead of the Project URL, fix it
+  if (supabaseUrl.endsWith('/rest/v1/')) {
+    supabaseUrl = supabaseUrl.replace('/rest/v1/', '');
+  } else if (supabaseUrl.endsWith('/rest/v1')) {
+    supabaseUrl = supabaseUrl.replace('/rest/v1', '');
+  }
+  
+  supabase = createClient(supabaseUrl, supabaseKey);
+  console.log("Supabase client initialized with URL:", supabaseUrl);
+}
 
 // Initialize Data Storage
 const DATA_DIR = path.resolve(process.cwd(), "data");
@@ -112,12 +133,18 @@ async function startServer() {
   // ---- API ROUTES ----
 
   // Get all products
-  app.get("/api/products", (req, res) => {
+  app.get("/api/products", async (req, res) => {
     try {
+      if (supabase) {
+        const { data, error } = await supabase.from('products').select('*');
+        if (error) throw error;
+        return res.json({ products: data || [] });
+      }
       const data = readData();
       res.json({ products: data });
-    } catch (err) {
-      res.status(500).json({ error: "Failed to read products" });
+    } catch (err: any) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to read products", details: err.message });
     }
   });
 
@@ -142,7 +169,7 @@ async function startServer() {
   };
 
   // Add a new product
-  app.post("/api/products", requireAuth, upload.single("image"), (req, res) => {
+  app.post("/api/products", requireAuth, upload.single("image"), async (req, res) => {
     try {
       const { name, price, category } = req.body;
       const file = req.file;
@@ -155,6 +182,17 @@ async function startServer() {
       const imageUrl = file 
         ? `/uploads/${file.filename}` 
         : (req.body.imageUrl || `https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&q=80&w=600`); // Fallback
+
+      if (supabase) {
+        const { data, error } = await supabase
+          .from('products')
+          .insert([{ name, price: parseFloat(price), category, status: 'available', image: imageUrl }])
+          .select()
+          .single();
+        
+        if (error) throw error;
+        return res.status(201).json({ product: data });
+      }
 
       const newProduct = {
         id: Date.now().toString(),
@@ -170,15 +208,29 @@ async function startServer() {
       writeData(products);
 
       res.status(201).json({ product: newProduct });
-    } catch (err) {
-      res.status(500).json({ error: "Failed to add product" });
+    } catch (err: any) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to add product", details: err.message });
     }
   });
 
   // Update product status (e.g. available <-> sold)
-  app.put("/api/products/:id/status", requireAuth, (req, res) => {
+  app.put("/api/products/:id/status", requireAuth, async (req, res) => {
     try {
       const { status } = req.body;
+      
+      if (supabase) {
+        const { data, error } = await supabase
+          .from('products')
+          .update({ status })
+          .eq('id', req.params.id)
+          .select()
+          .single();
+          
+        if (error) throw error;
+        return res.json({ product: data });
+      }
+      
       const products = readData();
       const productIndex = products.findIndex((p: any) => p.id === req.params.id);
 
@@ -188,20 +240,28 @@ async function startServer() {
       writeData(products);
 
       res.json({ product: products[productIndex] });
-    } catch (err) {
-      res.status(500).json({ error: "Failed to update product" });
+    } catch (err: any) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to update product", details: err.message });
     }
   });
 
   // Delete product
-  app.delete("/api/products/:id", requireAuth, (req, res) => {
+  app.delete("/api/products/:id", requireAuth, async (req, res) => {
     try {
+      if (supabase) {
+        const { error } = await supabase.from('products').delete().eq('id', req.params.id);
+        if (error) throw error;
+        return res.json({ success: true });
+      }
+      
       let products = readData();
       products = products.filter((p: any) => p.id !== req.params.id);
       writeData(products);
       res.json({ success: true });
-    } catch (err) {
-      res.status(500).json({ error: "Failed to delete product" });
+    } catch (err: any) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to delete product", details: err.message });
     }
   });
 
